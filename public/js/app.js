@@ -855,15 +855,32 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 4. Tải cấu hình & trạng thái ban đầu từ Server + Polling dự phòng cho Serverless
   let lastGiftSentState = false;
   let lastConfigHash = '';
+  let lastUpdatedAt = 0;
+  try {
+    const cachedRaw = localStorage.getItem('gift_2010_cached_config');
+    if (cachedRaw) {
+      const cachedCfg = JSON.parse(cachedRaw);
+      if (cachedCfg && typeof cachedCfg === 'object') {
+        lastConfigHash = cachedRaw;
+        lastUpdatedAt = Number(cachedCfg.updatedAt) || 0;
+        applyContent(cachedCfg);
+      }
+    }
+  } catch (e) {}
   const syncFromServer = async (isInitial = false) => {
     try {
-      const res = await fetch('/api/config?role=girlfriend');
+      const res = await fetch(`/api/config?role=girlfriend&t=${Date.now()}`, { cache: 'no-store' });
       const data = await res.json();
       if (data.config) {
-        const cfgHash = JSON.stringify(data.config);
-        if (cfgHash !== lastConfigHash) {
-          lastConfigHash = cfgHash;
-          applyContent(data.config);
+        const serverUpdatedAt = Number(data.config.updatedAt) || 0;
+        if (serverUpdatedAt >= lastUpdatedAt) {
+          lastUpdatedAt = serverUpdatedAt;
+          const cfgHash = JSON.stringify(data.config);
+          if (cfgHash !== lastConfigHash) {
+            lastConfigHash = cfgHash;
+            try { localStorage.setItem('gift_2010_cached_config', cfgHash); } catch (e) {}
+            applyContent(data.config);
+          }
         }
       }
       if (data.session) {

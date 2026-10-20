@@ -387,6 +387,7 @@ document.getElementById('cmsForm').addEventListener('submit', async (e) => {
   });
   const data = await res.json();
   if (data.success) {
+    try { localStorage.setItem('gift_2010_cached_config', JSON.stringify(data.config)); } catch (e) {}
     const st = document.getElementById('cmsSaveStatus');
     st.textContent = '✅ Đã lưu và cập nhật trực tiếp toàn bộ chữ sang trang bạn gái!';
     setTimeout(() => { st.textContent = ''; }, 3000);
@@ -398,7 +399,10 @@ document.getElementById('resetDefaultTextBtn').addEventListener('click', async (
   if (!confirm('Bạn có chắc muốn khôi phục toàn bộ câu chữ và bức thư về mặc định ban đầu?')) return;
   const res = await fetch('/api/config/reset-default', { method: 'POST' });
   const data = await res.json();
-  if (data.success) populateCmsForm(data.config);
+  if (data.success) {
+    try { localStorage.setItem('gift_2010_cached_config', JSON.stringify(data.config)); } catch (e) {}
+    populateCmsForm(data.config);
+  }
 });
 
 // Reset phiên nhận quà để test lại
@@ -413,7 +417,7 @@ let formPopulated = false;
 
 async function pollAdminState() {
   try {
-    const res = await fetch('/api/state');
+    const res = await fetch(`/api/state?t=${Date.now()}`, { cache: 'no-store' });
     const data = await res.json();
     if (data.config && !formPopulated) {
       formPopulated = true;
