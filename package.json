@@ -1,0 +1,14 @@
+{
+  "name": "happy-teachers-day-20-11-gift",
+  "version": "1.0.0",
+  "description": "Web Animation chúc mừng bạn gái 20/11 kèm nhận quà chuyển khoản real-time và trang quản trị",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "multer": "^1.4.5-lts.1",
+    "socket.io": "^4.7.5"
+  }
+}

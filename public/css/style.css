@@ -1,0 +1,1389 @@
+:root {
+  --paper-bg: #fffdf6;
+  --paper-card: #fffaf0;
+  --grid-line: rgba(214, 194, 175, 0.28);
+  --ink: #3d312a;
+  --ink-soft: #6e5a4f;
+  --pastel-pink: #ffd6e0;
+  --pastel-rose: #ffacc5;
+  --pastel-butter: #fff1b5;
+  --pastel-mint: #d8f3dc;
+  --pastel-sky: #dcebff;
+  --pastel-lav: #eadcf8;
+  --pastel-peach: #ffe3cc;
+  --chalk-bg: #2f5d50;
+  --chalk-border: #c88a55;
+  --stamp-red: #e05353;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Quicksand', sans-serif;
+  color: var(--ink);
+  background-color: var(--paper-bg);
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px),
+    radial-gradient(rgba(255, 172, 197, 0.22) 1.5px, transparent 1.5px);
+  background-size: 28px 28px, 28px 28px, 56px 56px;
+  background-position: 0 0, 0 0, 14px 14px;
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+#petalsCanvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* HỌA TIẾT VẼ TAY SVG NỔI QUANH MÀN HÌNH */
+.ambient-doodles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  overflow: hidden;
+}
+.doodle-item {
+  position: absolute;
+  filter: url(#wobblyLine);
+  opacity: 0.85;
+}
+.d-plane {
+  width: 95px;
+  top: 11%;
+  left: 5%;
+  animation: floatPlane 8s ease-in-out infinite;
+}
+.d-flower-tl {
+  width: 78px;
+  top: 7%;
+  left: 22%;
+  animation: spinWobble 12s linear infinite;
+}
+.d-cloud-tr {
+  width: 135px;
+  top: 8%;
+  right: 8%;
+  animation: cloudDrift 9s ease-in-out infinite alternate;
+}
+.d-star-bl {
+  width: 68px;
+  bottom: 10%;
+  left: 6%;
+  animation: bounceStar 3.4s ease-in-out infinite;
+}
+.d-book-br {
+  width: 96px;
+  bottom: 8%;
+  right: 6%;
+  animation: tiltSwing 4.2s ease-in-out infinite;
+}
+
+.draw-path {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.draw-path.dashed {
+  stroke-dasharray: 5 5;
+}
+.fill-pink { fill: var(--pastel-pink); stroke: var(--ink); stroke-width: 2.6; }
+.fill-butter { fill: var(--pastel-butter); stroke: var(--ink); stroke-width: 2.6; }
+.fill-sky { fill: var(--pastel-sky); stroke: var(--ink); stroke-width: 2.6; }
+.fill-mint { fill: var(--pastel-mint); stroke: var(--ink); stroke-width: 2.6; }
+
+/* NÚT BẬT NHẠC BĂNG CASSETTE VẼ TAY */
+.music-btn {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 120;
+  background: var(--pastel-butter);
+  color: var(--ink);
+  border: 2.5px solid var(--ink);
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  padding: 10px 18px;
+  font-family: 'Mali', cursive;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 4px 4px 0px var(--ink);
+  transition: transform 0.2s, box-shadow 0.2s;
+  animation: subtleWiggle 3.5s ease-in-out infinite;
+}
+.music-btn:hover {
+  transform: translate(-2px, -2px) rotate(-2deg);
+  box-shadow: 6px 6px 0px var(--ink);
+  background: var(--pastel-pink);
+}
+.music-btn.playing {
+  background: var(--pastel-mint);
+}
+.music-notes-anim {
+  display: inline-block;
+  color: #e05353;
+  font-weight: 800;
+  animation: noteJump 1.1s ease-in-out infinite alternate;
+}
+
+/* BỐ CỤC CHUNG CỦA CÁC PHÂN CẢNH */
+.scene {
+  display: none;
+  position: relative;
+  z-index: 10;
+  min-height: 100vh;
+  padding: 46px 18px 70px;
+  align-items: center;
+  justify-content: center;
+}
+.scene.active {
+  display: flex;
+}
+
+/* KHUNG SỔ TAY SKETCHBOOK & BĂNG DÍNH WASHI TAPE */
+.sketch-notebook, .sketch-card {
+  background: var(--paper-card);
+  border: 3px solid var(--ink);
+  border-radius: 24px 8px 28px 10px / 10px 26px 8px 24px;
+  box-shadow: 7px 7px 0px var(--ink);
+  position: relative;
+}
+
+.washi-tape {
+  position: absolute;
+  width: 115px;
+  height: 30px;
+  background-color: rgba(255, 182, 193, 0.72);
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 8px,
+    rgba(255, 255, 255, 0.55) 8px,
+    rgba(255, 255, 255, 0.55) 16px
+  );
+  border: 1.8px dashed rgba(61, 49, 42, 0.45);
+  z-index: 15;
+  pointer-events: none;
+}
+.tape-top-left {
+  top: -14px;
+  left: 18px;
+  transform: rotate(-14deg);
+}
+.tape-top-right {
+  top: -14px;
+  right: 18px;
+  background-color: rgba(189, 224, 254, 0.75);
+  transform: rotate(12deg);
+}
+.tape-center {
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-3deg);
+  background-color: rgba(216, 243, 220, 0.82);
+}
+.tape-small {
+  width: 82px;
+  height: 24px;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%) rotate(4deg);
+}
+
+.hand-tag {
+  display: inline-block;
+  background: var(--pastel-butter);
+  border: 2.5px solid var(--ink);
+  border-radius: 18px 6px 18px 6px;
+  padding: 7px 18px;
+  font-family: 'Patrick Hand', cursive;
+  font-size: 1.15rem;
+  letter-spacing: 0.5px;
+  color: var(--ink);
+  box-shadow: 3px 3px 0px var(--ink);
+  margin-bottom: 16px;
+  animation: floatTag 2.8s ease-in-out infinite;
+}
+
+/* PHÂN CẢNH 1: SỔ TAY MỞ ĐẦU & PHONG BÌ VẼ TAY */
+.intro-container {
+  max-width: 680px;
+  width: 100%;
+  padding: 42px 28px 34px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.title-with-doodles {
+  position: relative;
+  margin-bottom: 10px;
+}
+.intro-title {
+  font-family: 'Mali', cursive;
+  font-weight: 700;
+  font-size: clamp(1.9rem, 4.5vw, 2.85rem);
+  color: var(--ink);
+  line-height: 1.3;
+  text-shadow: 2px 2px 0px var(--pastel-pink);
+}
+.underline-doodle {
+  width: min(340px, 85%);
+  height: 26px;
+  margin: 2px auto 0;
+  display: block;
+}
+.underline-doodle .draw-path {
+  stroke: #ff7597;
+  stroke-width: 3.5;
+}
+.intro-subtitle {
+  font-family: 'Patrick Hand', cursive;
+  font-size: 1.3rem;
+  color: var(--ink-soft);
+  margin-bottom: 24px;
+}
+
+.envelope-wrapper {
+  position: relative;
+  cursor: pointer;
+  margin: 12px 0 18px;
+  padding: 18px 26px;
+}
+.sticker-deco {
+  position: absolute;
+  background: var(--pastel-mint);
+  border: 2px solid var(--ink);
+  border-radius: 99px;
+  padding: 5px 12px;
+  font-family: 'Patrick Hand', cursive;
+  font-size: 1rem;
+  box-shadow: 3px 3px 0px var(--ink);
+  z-index: 8;
+  animation: stickerBob 2.6s ease-in-out infinite alternate;
+}
+.sticker-left {
+  top: -8px;
+  left: -24px;
+  transform: rotate(-12deg);
+  background: var(--pastel-lav);
+}
+.sticker-right {
+  bottom: 45px;
+  right: -28px;
+  transform: rotate(10deg);
+  background: var(--pastel-mint);
+}
+
+.envelope {
+  width: 310px;
+  height: 205px;
+  position: relative;
+  margin: 0 auto;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.envelope-wrapper:hover .envelope {
+  transform: translateY(-8px) rotate(-1.5deg) scale(1.03);
+}
+.envelope-back {
+  position: absolute;
+  inset: 0;
+  background: var(--pastel-pink);
+  border: 3px solid var(--ink);
+  border-radius: 14px;
+  box-shadow: 6px 6px 0px var(--ink);
+}
+.envelope-letter {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  top: 14px;
+  bottom: 16px;
+  background: #fffdf9;
+  border: 2.5px solid var(--ink);
+  border-radius: 10px;
+  padding: 16px 12px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.85s cubic-bezier(0.34, 1.56, 0.64, 1);
+  background-image: repeating-linear-gradient(transparent, transparent 22px, rgba(255, 172, 197, 0.35) 23px);
+}
+.envelope.open .envelope-letter {
+  transform: translateY(-115px) rotate(-2deg) scale(1.05);
+  z-index: 6;
+}
+.letter-stamp {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: 1.3rem;
+  border: 1.8px dashed var(--ink);
+  padding: 2px 5px;
+  background: var(--pastel-butter);
+}
+.mini-heart {
+  font-size: 1.8rem;
+  animation: heartBeat 1.4s infinite;
+}
+#txtEnvelopeRecipient {
+  font-family: 'Mali', cursive;
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--ink);
+  margin-top: 4px;
+}
+.mini-tag {
+  font-family: 'Patrick Hand', cursive;
+  font-size: 1rem;
+  background: var(--pastel-butter);
+  border: 1.8px solid var(--ink);
+  padding: 1px 10px;
+  border-radius: 12px;
+  margin-top: 6px;
+}
+.envelope-pocket {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background: linear-gradient(135deg, transparent 48%, #ffc2d4 49%), linear-gradient(225deg, transparent 48%, #ffb3c8 49%);
+  border: 3px solid var(--ink);
+  border-radius: 14px;
+  pointer-events: none;
+}
+.envelope-flap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 118px;
+  background: var(--pastel-rose);
+  border: 3px solid var(--ink);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  transform-origin: top;
+  transition: transform 0.65s ease;
+  z-index: 4;
+}
+.envelope.open .envelope-flap {
+  transform: rotateX(180deg);
+  z-index: 1;
+}
+.wax-seal {
+  position: absolute;
+  top: 96px;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 54px;
+  height: 54px;
+  background: #ff6b8b;
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.55rem;
+  z-index: 5;
+  box-shadow: 3px 3px 0px var(--ink);
+  animation: sealPulse 1.6s ease-in-out infinite;
+}
+.envelope.open .wax-seal {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(1.8) rotate(35deg);
+  transition: 0.45s;
+}
+
+.tap-hint-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 14px;
+}
+.curly-arrow {
+  width: 68px;
+  height: 44px;
+  transform: rotate(-10deg);
+}
+.tap-hint {
+  font-family: 'Mali', cursive;
+  font-weight: 700;
+  font-size: 1rem;
+  background: var(--pastel-butter);
+  border: 2px solid var(--ink);
+  padding: 6px 16px;
+  border-radius: 99px;
+  box-shadow: 3px 3px 0px var(--ink);
+  animation: floatTag 2s ease-in-out infinite;
+}
+.mini-garden-row {
+  display: flex;
+  gap: 18px;
+  margin-top: 14px;
+  font-size: 1.6rem;
+}
+.sprout-item {
+  display: inline-block;
+  animation: sproutDance 2.2s ease-in-out infinite;
+}
+.sprout-item:nth-child(2) { animation-delay: 0.25s; }
+.sprout-item:nth-child(3) { animation-delay: 0.5s; }
+.sprout-item:nth-child(4) { animation-delay: 0.75s; }
+.sprout-item:nth-child(5) { animation-delay: 1s; }
+
+/* PHÂN CẢNH 2: DÂY CỜ, BẢNG PHẤN, CHẬU HOA TRI THỨC & TÂM THƯ */
+.story-container {
+  max-width: 980px;
+  width: 100%;
+  margin: 0 auto;
+}
+.bunting-banner {
+  width: 100%;
+  height: 64px;
+  margin-bottom: 10px;
+  animation: buntingSway 4s ease-in-out infinite alternate;
+}
+.bunting-banner svg { width: 100%; height: 100%; overflow: visible; }
+.flag-pink { fill: var(--pastel-pink); stroke: var(--ink); stroke-width: 2.5; }
+.flag-butter { fill: var(--pastel-butter); stroke: var(--ink); stroke-width: 2.5; }
+.flag-mint { fill: var(--pastel-mint); stroke: var(--ink); stroke-width: 2.5; }
+.flag-sky { fill: var(--pastel-sky); stroke: var(--ink); stroke-width: 2.5; }
+.flag-lav { fill: var(--pastel-lav); stroke: var(--ink); stroke-width: 2.5; }
+
+.hero-header {
+  text-align: center;
+  padding: 32px 24px;
+  margin-bottom: 28px;
+  background: var(--paper-card);
+}
+.crown-badge {
+  display: inline-block;
+  background: var(--pastel-pink);
+  border: 2.5px solid var(--ink);
+  padding: 6px 18px;
+  border-radius: 99px;
+  font-family: 'Mali', cursive;
+  font-weight: 700;
+  box-shadow: 3px 3px 0px var(--ink);
+  margin-bottom: 12px;
+}
+.hero-title {
+  font-family: 'Mali', cursive;
+  font-size: clamp(1.85rem, 4.2vw, 2.75rem);
+  color: var(--ink);
+  margin-bottom: 10px;
+  text-shadow: 2px 2px 0px var(--pastel-butter);
+}
+.hero-subtitle {
+  font-size: 1.12rem;
+  color: var(--ink-soft);
+  max-width: 680px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* GÓC TƯƠNG TÁC LỚP HỌC: BẢNG PHẤN & CHẬU HOA TRI THỨC */
+.interactive-classroom-grid {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 24px;
+  margin-bottom: 30px;
+}
+@media (max-width: 820px) {
+  .interactive-classroom-grid { grid-template-columns: 1fr; }
+}
+
+.chalkboard-card {
+  background: var(--chalk-border);
+  border: 3px solid var(--ink);
+  border-radius: 20px;
+  padding: 12px;
+  box-shadow: 6px 6px 0px var(--ink);
+  display: flex;
+  flex-direction: column;
+}
+.chalkboard-wood-top {
+  font-family: 'Mali', cursive;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #fffdf5;
+  text-align: center;
+  margin-bottom: 8px;
+  text-shadow: 1px 1px 0px var(--ink);
+}
+.chalkboard-surface {
+  background: var(--chalk-bg);
+  border: 2.5px solid var(--ink);
+  border-radius: 12px;
+  padding: 18px 16px;
+  color: #fffef8;
+  font-family: 'Patrick Hand', cursive;
+  min-height: 195px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.25);
+}
+.chalk-writing {
+  font-size: 1.15rem;
+  color: rgba(255, 255, 255, 0.9);
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+.chalk-main {
+  font-family: 'Mali', cursive;
+  font-size: 1.28rem;
+  color: var(--pastel-butter);
+  line-height: 1.45;
+}
+.chalk-doodle-svg {
+  width: 100%;
+  height: 64px;
+  margin-top: 6px;
+}
+.chalk-path {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.85);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-dasharray: 4 3;
+}
+.chalk-stickers-area {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+.chalk-mini-item {
+  display: inline-block;
+  font-family: 'Mali', cursive;
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 3px 9px;
+  border: 1.5px dashed rgba(255,255,255,0.8);
+  border-radius: 99px;
+  color: #ffd6e0;
+  animation: popSticker 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.chalk-tray {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 4px;
+  flex-wrap: wrap;
+}
+.chalk-piece {
+  width: 28px;
+  height: 9px;
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  display: inline-block;
+}
+.chalk-piece.white { background: #ffffff; }
+.chalk-piece.pink { background: var(--pastel-pink); }
+.chalk-piece.yellow { background: var(--pastel-butter); }
+
+.btn-mini-sketch {
+  background: var(--pastel-butter);
+  border: 2.2px solid var(--ink);
+  border-radius: 99px;
+  padding: 7px 15px;
+  font-family: 'Mali', cursive;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--ink);
+  cursor: pointer;
+  box-shadow: 3px 3px 0px var(--ink);
+  transition: transform 0.15s;
+}
+.btn-mini-sketch:hover {
+  transform: translate(-2px, -2px) rotate(-1deg);
+  background: var(--pastel-pink);
+}
+.btn-mini-sketch.btn-mint { background: var(--pastel-mint); }
+
+/* CHẬU HOA TRI THỨC TƯƠNG TÁC */
+.flower-pot-card {
+  padding: 20px 18px;
+  text-align: center;
+  background: #fffdf7;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+.paper-clip {
+  position: absolute;
+  top: -14px;
+  right: 18px;
+  font-size: 1.7rem;
+  transform: rotate(15deg);
+}
+.flower-pot-card h3 {
+  font-family: 'Mali', cursive;
+  font-size: 1.22rem;
+  margin-bottom: 4px;
+}
+.pot-hint {
+  font-family: 'Patrick Hand', cursive;
+  font-size: 1.05rem;
+  color: var(--ink-soft);
+}
+.plant-stage {
+  position: relative;
+  width: 165px;
+  height: 165px;
+  margin: 4px auto;
+}
+.plant-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.pot-body { fill: #f4a261; stroke: var(--ink); stroke-width: 2.8; }
+.pot-rim { fill: #e76f51; stroke: var(--ink); stroke-width: 2.8; }
+.stem-line {
+  fill: none;
+  stroke: #40916c;
+  stroke-width: 4.5;
+  stroke-linecap: round;
+  stroke-dasharray: 90;
+  stroke-dashoffset: 65;
+  transition: stroke-dashoffset 0.6s ease;
+}
+.leaf-shape {
+  fill: #74c69d;
+  stroke: var(--ink);
+  stroke-width: 2.3;
+  transform: scale(0);
+  transform-origin: center;
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.bloom-group {
+  transform: scale(0);
+  transform-origin: 90px 49px;
+  transition: transform 0.65s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.petal-pink { fill: var(--pastel-pink); stroke: var(--ink); stroke-width: 2.3; }
+.flower-center { fill: var(--pastel-butter); stroke: var(--ink); stroke-width: 2.3; }
+.water-drops {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.water-drop-anim {
+  position: absolute;
+  font-size: 1.25rem;
+  animation: dropFall 0.7s ease-in forwards;
+}
+
+/* 3 THẺ CÂU CHUYỆN STICKY NOTE */
+.story-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+  margin-bottom: 36px;
+}
+.story-card {
+  position: relative;
+  border: 2.8px solid var(--ink);
+  border-radius: 18px 6px 22px 8px;
+  padding: 30px 22px 26px;
+  box-shadow: 6px 6px 0px var(--ink);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: pointer;
+}
+.note-butter { background: var(--pastel-butter); transform: rotate(-1.8deg); }
+.note-pink { background: var(--pastel-pink); transform: rotate(1.4deg); }
+.note-mint { background: var(--pastel-mint); transform: rotate(-1.2deg); }
+.story-card:hover {
+  transform: translateY(-10px) rotate(0deg) scale(1.03);
+}
+.pin-tack {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.5rem;
+}
+.card-stamp {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  border: 2px solid var(--stamp-red);
+  color: var(--stamp-red);
+  font-family: 'Mali', cursive;
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding: 2px 8px;
+  border-radius: 8px;
+  transform: rotate(14deg);
+}
+.card-icon {
+  font-size: 2.4rem;
+  margin-bottom: 10px;
+  display: inline-block;
+  animation: floatTag 2.5s ease-in-out infinite;
+}
+.story-card h3 {
+  font-family: 'Mali', cursive;
+  font-size: 1.28rem;
+  margin-bottom: 8px;
+  color: var(--ink);
+}
+.story-card p {
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--ink-soft);
+}
+.card-doodle-corner {
+  position: absolute;
+  bottom: 10px;
+  right: 14px;
+  font-size: 1.3rem;
+  color: var(--ink-soft);
+  opacity: 0.65;
+}
+
+/* BỨC TÂM THƯ TRÊN GIẤY VỞ KẺ NGANG SỔ TAY */
+.letter-paper {
+  position: relative;
+  background-color: #fffef9;
+  background-image:
+    linear-gradient(90deg, transparent 46px, rgba(255, 138, 165, 0.55) 46px, rgba(255, 138, 165, 0.55) 48px, transparent 48px),
+    repeating-linear-gradient(transparent, transparent 35px, rgba(168, 208, 230, 0.45) 35px, rgba(168, 208, 230, 0.45) 36px);
+  border: 3px solid var(--ink);
+  border-radius: 18px 26px 20px 14px;
+  box-shadow: 8px 8px 0px var(--ink);
+  padding: 40px 34px 36px 66px;
+  margin-bottom: 38px;
+}
+@media (max-width: 640px) {
+  .letter-paper {
+    padding: 34px 20px 30px 44px;
+    background-image:
+      linear-gradient(90deg, transparent 30px, rgba(255, 138, 165, 0.55) 30px, rgba(255, 138, 165, 0.55) 32px, transparent 32px),
+      repeating-linear-gradient(transparent, transparent 35px, rgba(168, 208, 230, 0.45) 35px, rgba(168, 208, 230, 0.45) 36px);
+  }
+}
+.notebook-holes {
+  position: absolute;
+  left: 14px;
+  top: 32px;
+  bottom: 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.notebook-holes span {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--paper-bg);
+  border: 2.2px solid var(--ink);
+  box-shadow: inset 2px 2px 0px rgba(0,0,0,0.12);
+}
+
+.teacup-doodle {
+  position: absolute;
+  top: -32px;
+  right: 24px;
+  width: 78px;
+  height: 78px;
+  cursor: pointer;
+  z-index: 12;
+  transition: transform 0.25s;
+}
+.teacup-doodle:hover {
+  transform: scale(1.12) rotate(-6deg);
+}
+.cup-body { fill: var(--pastel-pink); stroke: var(--ink); stroke-width: 2.6; }
+.cup-handle { fill: none; stroke: var(--ink); stroke-width: 2.6; stroke-linecap: round; }
+.cup-saucer { fill: var(--pastel-butter); stroke: var(--ink); stroke-width: 2.5; }
+.steam-line {
+  fill: none;
+  stroke: var(--ink-soft);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  animation: steamRise 2.2s ease-in-out infinite;
+}
+.steam-line.s2 { animation-delay: 0.6s; }
+.steam-line.s3 { animation-delay: 1.2s; }
+
+.letter-decor-top {
+  text-align: center;
+  font-family: 'Patrick Hand', cursive;
+  font-size: 1.15rem;
+  color: #e05353;
+  margin-bottom: 14px;
+}
+.letter-greeting {
+  font-family: 'Mali', cursive;
+  font-size: 1.55rem;
+  color: var(--ink);
+  margin-bottom: 14px;
+}
+.letter-body-wrap {
+  position: relative;
+}
+.floating-pen {
+  position: absolute;
+  right: 8px;
+  top: -18px;
+  font-size: 1.9rem;
+  pointer-events: none;
+  animation: penWrite 1.6s ease-in-out infinite alternate;
+}
+.letter-body p {
+  font-family: 'Patrick Hand', cursive;
+  font-size: 1.32rem;
+  line-height: 36px;
+  color: var(--ink);
+  margin-bottom: 14px;
+}
+.sketch-highlight {
+  background: linear-gradient(104deg, rgba(255, 241, 181, 0) 0.9%, rgba(255, 241, 181, 0.95) 2.4%, rgba(255, 214, 224, 0.85) 96%, rgba(255, 241, 181, 0) 98%);
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.letter-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-top: 24px;
+}
+.teacher-award-stamp {
+  border: 3px double var(--stamp-red);
+  color: var(--stamp-red);
+  border-radius: 50%;
+  width: 118px;
+  height: 118px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 10px;
+  transform: rotate(-14deg);
+  background: rgba(255, 214, 224, 0.25);
+  cursor: pointer;
+  box-shadow: 2px 2px 0px rgba(224, 83, 83, 0.3);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.teacher-award-stamp:hover {
+  transform: rotate(-4deg) scale(1.1);
+}
+.stamp-inner {
+  display: flex;
+  flex-direction: column;
+  font-family: 'Mali', cursive;
+  font-size: 0.72rem;
+  line-height: 1.25;
+}
+.stamp-inner strong {
+  font-size: 0.92rem;
+  margin: 2px 0;
+}
+.signature-block {
+  text-align: right;
+}
+.letter-closing {
+  font-family: 'Patrick Hand', cursive;
+  font-size: 1.25rem;
+  color: var(--ink-soft);
+}
+.letter-signature {
+  font-family: 'Mali', cursive;
+  font-weight: 700;
+  font-size: 1.65rem;
+  color: #e05353;
+  margin-top: 4px;
+}
+
+/* HỘP QUÀ VẼ TAY SVG NẢY LÒ XO */
+.gift-cta-box {
+  text-align: center;
+  padding: 38px 24px 36px;
+  background: var(--paper-card);
+}
+.gift-cta-title {
+  font-family: 'Mali', cursive;
+  font-size: 1.8rem;
+  margin-bottom: 8px;
+}
+.gift-cta-sub {
+  font-size: 1.08rem;
+  color: var(--ink-soft);
+  max-width: 580px;
+  margin: 0 auto 18px;
+}
+.gift-3d-wrapper {
+  position: relative;
+  width: 210px;
+  height: 210px;
+  margin: 0 auto 14px;
+  cursor: pointer;
+}
+.comic-burst {
+  position: absolute;
+  top: -8px;
+  right: -25px;
+  background: var(--pastel-butter);
+  border: 2.2px solid var(--ink);
+  border-radius: 99px;
+  padding: 4px 12px;
+  font-family: 'Mali', cursive;
+  font-weight: 700;
+  font-size: 0.82rem;
+  box-shadow: 3px 3px 0px var(--ink);
+  transform: rotate(12deg);
+  animation: sealPulse 1.3s ease-in-out infinite;
+  z-index: 5;
+}
+.hand-gift-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  animation: giftBounce 2.2s ease-in-out infinite;
+}
+.gift-3d-wrapper:hover .hand-gift-svg {
+  animation: giftShakeHard 0.5s ease-in-out infinite;
+}
+.gift-box-body { fill: var(--pastel-pink); stroke: var(--ink); stroke-width: 3; }
+.gift-box-lid { fill: var(--pastel-rose); stroke: var(--ink); stroke-width: 3; }
+.gift-ribbon-v, .gift-ribbon-h { fill: var(--pastel-butter); stroke: var(--ink); stroke-width: 2.6; }
+.gift-bow-loop { fill: #ff6b8b; stroke: var(--ink); stroke-width: 2.8; }
+.gift-bow-knot { fill: var(--pastel-butter); stroke: var(--ink); stroke-width: 2.8; }
+.gift-sparkle {
+  font-family: 'Mali', cursive;
+  font-size: 22px;
+  fill: #ff6b8b;
+  animation: bounceStar 1.8s ease-in-out infinite;
+}
+.gs2 { fill: #f4a261; animation-delay: 0.4s; }
+.gs3 { fill: #52b788; animation-delay: 0.8s; }
+.gs4 { fill: #7209b7; animation-delay: 1.2s; }
+
+.btn-claim-gift, .btn-celebrate-again {
+  background: var(--pastel-butter);
+  color: var(--ink);
+  border: 3px solid var(--ink);
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  padding: 15px 32px;
+  font-family: 'Mali', cursive;
+  font-weight: 700;
+  font-size: 1.2rem;
+  cursor: pointer;
+  box-shadow: 6px 6px 0px var(--ink);
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+}
+.btn-claim-gift:hover, .btn-celebrate-again:hover {
+  background: var(--pastel-pink);
+  transform: translate(-3px, -3px) rotate(-1deg);
+  box-shadow: 9px 9px 0px var(--ink);
+}
+
+/* PHÂN CẢNH 3: BẦU TRỜI MÂY PASTEL & MÁY BAY GIẤY GIAO QUÀ */
+.waiting-card {
+  max-width: 640px;
+  width: 100%;
+  padding: 38px 28px;
+  text-align: center;
+}
+.sky-delivery-stage {
+  position: relative;
+  height: 185px;
+  background: var(--pastel-sky);
+  border: 2.8px solid var(--ink);
+  border-radius: 18px;
+  margin-bottom: 22px;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 4px rgba(255,255,255,0.45);
+}
+.pastel-sun {
+  position: absolute;
+  top: 12px;
+  left: 18px;
+  font-size: 2.4rem;
+  animation: spinWobble 14s linear infinite;
+}
+.cloud-float {
+  position: absolute;
+  font-size: 2.3rem;
+  opacity: 0.9;
+}
+.cloud-float.c1 { top: 16px; right: 15%; animation: cloudPass 9s linear infinite; }
+.cloud-float.c2 { bottom: 14px; left: 20%; font-size: 1.9rem; animation: cloudPass 12s linear infinite reverse; }
+.cloud-float.c3 { top: 45px; left: 55%; font-size: 1.7rem; animation: cloudPass 7.5s linear infinite; }
+
+.flying-courier {
+  position: relative;
+  width: 250px;
+  margin: 24px auto 0;
+  animation: courierFly 2.4s ease-in-out infinite;
+}
+.courier-svg { width: 100%; height: 105px; overflow: visible; }
+.wind-trail {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 2.5;
+  stroke-dasharray: 8 6;
+  stroke-linecap: round;
+  animation: windDash 0.8s linear infinite;
+}
+.rope-line { fill: none; stroke: var(--ink); stroke-width: 2.4; }
+.plane-wing-light { fill: #fffdf9; stroke: var(--ink); stroke-width: 2.8; stroke-linejoin: round; }
+.plane-wing-fold { fill: var(--pastel-pink); stroke: var(--ink); stroke-width: 2.8; stroke-linejoin: round; }
+.hanging-parcel {
+  transform-origin: 95px 72px;
+  animation: parcelSwing 1.4s ease-in-out infinite alternate;
+}
+.heart-exhaust {
+  position: absolute;
+  left: 12px;
+  top: 38px;
+  display: flex;
+  gap: 6px;
+  font-size: 1.2rem;
+  animation: puffHearts 1.2s ease-out infinite;
+}
+
+.waiting-title {
+  font-family: 'Mali', cursive;
+  font-size: 1.7rem;
+  margin-bottom: 10px;
+}
+.waiting-dynamic-msg {
+  font-family: 'Patrick Hand', cursive;
+  font-size: 1.35rem;
+  color: #d94e67;
+  min-height: 2.2em;
+  margin-bottom: 14px;
+}
+.crayon-progress-wrap {
+  position: relative;
+  height: 22px;
+  background: #fff;
+  border: 2.6px solid var(--ink);
+  border-radius: 99px;
+  overflow: hidden;
+  margin: 0 auto 16px;
+  max-width: 440px;
+}
+.crayon-progress-fill {
+  height: 100%;
+  width: 65%;
+  background: repeating-linear-gradient(-45deg, var(--pastel-pink), var(--pastel-pink) 12px, var(--pastel-butter) 12px, var(--pastel-butter) 24px);
+  animation: crayonLoad 2.5s ease-in-out infinite alternate;
+}
+.crayon-tip {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
+}
+.waiting-note {
+  font-size: 0.98rem;
+  color: var(--ink-soft);
+}
+
+/* PHÂN CẢNH 4: TẤM SÉC NGÂN HÀNG HẠNH PHÚC & KHUNG ẢNH POLAROID ĐUNG ĐƯA */
+.reward-card {
+  max-width: 720px;
+  width: 100%;
+  padding: 40px 30px 36px;
+  text-align: center;
+}
+.reward-title {
+  font-family: 'Mali', cursive;
+  font-size: clamp(1.85rem, 4.2vw, 2.55rem);
+  margin-bottom: 6px;
+  color: var(--ink);
+}
+.reward-sub {
+  font-size: 1.08rem;
+  color: var(--ink-soft);
+  margin-bottom: 22px;
+}
+
+.love-cheque-box {
+  background: var(--pastel-butter);
+  background-image: radial-gradient(rgba(61, 49, 42, 0.08) 1px, transparent 1px);
+  background-size: 14px 14px;
+  border: 3px solid var(--ink);
+  border-radius: 18px;
+  padding: 20px 22px;
+  box-shadow: 6px 6px 0px var(--ink);
+  margin-bottom: 24px;
+  position: relative;
+}
+.cheque-top-row, .cheque-bottom-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-family: 'Patrick Hand', cursive;
+  font-size: 1.08rem;
+  color: var(--ink-soft);
+}
+.cheque-top-row {
+  border-bottom: 2px dashed rgba(61, 49, 42, 0.3);
+  padding-bottom: 8px;
+  margin-bottom: 14px;
+}
+.cheque-bottom-row {
+  border-top: 2px dashed rgba(61, 49, 42, 0.3);
+  padding-top: 10px;
+  margin-top: 14px;
+}
+.paid-stamp {
+  border: 2.2px solid #2b9348;
+  color: #2b9348;
+  background: var(--pastel-mint);
+  font-family: 'Mali', cursive;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 3px 10px;
+  border-radius: 8px;
+  transform: rotate(-4deg);
+}
+.amount-showcase {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+  font-family: 'Mali', cursive;
+  font-weight: 700;
+  color: #d9385a;
+  text-shadow: 3px 3px 0px #ffffff;
+}
+.amount-plus {
+  font-size: clamp(2rem, 5vw, 3.1rem);
+}
+.amount-digits {
+  font-size: clamp(2.35rem, 6.5vw, 3.9rem);
+  letter-spacing: 1px;
+}
+.amount-currency {
+  font-size: 1.45rem;
+  color: var(--ink);
+}
+
+.reward-message-box {
+  position: relative;
+  background: var(--pastel-pink);
+  border: 2.5px solid var(--ink);
+  border-radius: 16px;
+  padding: 18px 28px;
+  font-family: 'Patrick Hand', cursive;
+  font-size: 1.32rem;
+  margin-bottom: 24px;
+  box-shadow: 4px 4px 0px var(--ink);
+}
+.quote-doodle {
+  font-size: 1.8rem;
+  color: #d9385a;
+  vertical-align: middle;
+}
+
+/* KHUNG ẢNH POLAROID KẸP GỖ ĐUNG ĐƯA TRÊN DÂY THỪNG */
+.bill-wrapper {
+  margin: 22px 0 28px;
+}
+.bill-wrapper.hidden {
+  display: none;
+}
+.bill-header {
+  font-family: 'Mali', cursive;
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+}
+.clothesline-wrap {
+  position: relative;
+  padding-top: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.rope-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 32px;
+}
+.wooden-peg {
+  font-size: 1.85rem;
+  z-index: 6;
+  margin-bottom: -14px;
+  transform: rotate(-8deg);
+}
+.polaroid-frame {
+  background: #ffffff;
+  border: 3px solid var(--ink);
+  border-radius: 10px;
+  padding: 14px 14px 22px;
+  max-width: 340px;
+  width: 100%;
+  box-shadow: 7px 7px 0px var(--ink);
+  transform-origin: top center;
+  animation: polaroidSwing 3.6s ease-in-out infinite alternate;
+  position: relative;
+}
+.polaroid-frame img {
+  width: 100%;
+  border: 2px solid var(--ink);
+  border-radius: 6px;
+  display: block;
+}
+.polaroid-caption {
+  font-family: 'Patrick Hand', cursive;
+  font-size: 1.2rem;
+  margin-top: 10px;
+  color: var(--ink);
+}
+
+/* HẠT DOODLE KHI DI CHUỘT / CLICK */
+.cursor-doodle-particle {
+  position: fixed;
+  pointer-events: none;
+  z-index: 999;
+  font-family: 'Mali', cursive;
+  font-weight: 700;
+  user-select: none;
+  will-change: transform, opacity;
+}
+
+/* KEYFRAMES HOẠT HỌA VẼ TAY SINH ĐỘNG */
+@keyframes floatPlane {
+  0%, 100% { transform: translate(0, 0) rotate(-4deg); }
+  50% { transform: translate(22px, -16px) rotate(6deg); }
+}
+@keyframes spinWobble {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.08); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+@keyframes cloudDrift {
+  0% { transform: translateX(-12px); }
+  100% { transform: translateX(18px); }
+}
+@keyframes bounceStar {
+  0%, 100% { transform: translateY(0) scale(1) rotate(-5deg); }
+  50% { transform: translateY(-10px) scale(1.15) rotate(8deg); }
+}
+@keyframes tiltSwing {
+  0%, 100% { transform: rotate(-6deg); }
+  50% { transform: rotate(6deg); }
+}
+@keyframes subtleWiggle {
+  0%, 100% { transform: rotate(-1.5deg); }
+  50% { transform: rotate(1.5deg); }
+}
+@keyframes noteJump {
+  0% { transform: translateY(2px) rotate(-8deg); }
+  100% { transform: translateY(-4px) rotate(10deg); }
+}
+@keyframes floatTag {
+  0%, 100% { transform: translateY(0px) rotate(-1deg); }
+  50% { transform: translateY(-5px) rotate(1.5deg); }
+}
+@keyframes stickerBob {
+  0% { transform: translateY(0) rotate(-8deg); }
+  100% { transform: translateY(-6px) rotate(4deg); }
+}
+@keyframes heartBeat {
+  0%, 100% { transform: scale(1); }
+  40% { transform: scale(1.22); }
+}
+@keyframes sealPulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.1); }
+}
+@keyframes sproutDance {
+  0%, 100% { transform: translateY(0) rotate(-6deg); }
+  50% { transform: translateY(-7px) rotate(8deg); }
+}
+@keyframes buntingSway {
+  0% { transform: rotate(-0.8deg) translateY(0); }
+  100% { transform: rotate(0.8deg) translateY(3px); }
+}
+@keyframes popSticker {
+  0% { transform: scale(0) rotate(-20deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+@keyframes dropFall {
+  0% { transform: translateY(0) scale(0.8); opacity: 1; }
+  100% { transform: translateY(65px) scale(1.1); opacity: 0; }
+}
+@keyframes steamRise {
+  0% { transform: translateY(4px); opacity: 0.2; }
+  50% { opacity: 0.85; }
+  100% { transform: translateY(-8px); opacity: 0; }
+}
+@keyframes penWrite {
+  0% { transform: translate(0, 0) rotate(-12deg); }
+  100% { transform: translate(-12px, 5px) rotate(6deg); }
+}
+@keyframes giftBounce {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  30% { transform: translateY(-16px) scale(0.95, 1.06) rotate(-2deg); }
+  60% { transform: translateY(0) scale(1.06, 0.94) rotate(2deg); }
+}
+@keyframes giftShakeHard {
+  0%, 100% { transform: rotate(0deg) scale(1.05); }
+  25% { transform: rotate(-7deg) scale(1.08); }
+  75% { transform: rotate(7deg) scale(1.08); }
+}
+@keyframes cloudPass {
+  0% { transform: translateX(-25px); }
+  50% { transform: translateX(25px); }
+  100% { transform: translateX(-25px); }
+}
+@keyframes courierFly {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-12px) rotate(3deg); }
+}
+@keyframes windDash {
+  0% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: -28; }
+}
+@keyframes parcelSwing {
+  0% { transform: rotate(-8deg); }
+  100% { transform: rotate(10deg); }
+}
+@keyframes puffHearts {
+  0% { transform: translate(0, 0) scale(0.7); opacity: 0.95; }
+  100% { transform: translate(-35px, -12px) scale(1.25); opacity: 0; }
+}
+@keyframes crayonLoad {
+  0% { width: 25%; }
+  100% { width: 92%; }
+}
+@keyframes polaroidSwing {
+  0% { transform: rotate(-3.5deg); }
+  100% { transform: rotate(3.5deg); }
+}

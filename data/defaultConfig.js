@@ -1,0 +1,106 @@
+module.exports = {
+  // Cài đặt chung & Nhạc nền
+  pageTitle: 'Sổ Tay Tình Yêu 20/10 - Gửi Công Chúa Nhỏ Của Anh 🌷🎀',
+  musicBtnLabel: 'Băng Nhạc 20/10',
+  musicUrl: '',
+  musicName: '',
+  cursorParticles: '🎀, 👑, 🌷, 🍓, 🧋, 💖, ✨, 🌸, Xinh xỉu!',
+
+  // Phân cảnh 1: Phong bì mở đầu
+  recipientName: 'Công Chúa Nhỏ Của Anh 💕',
+  senderName: 'Anh Người Yêu Của Em',
+  dateBadge: '🎀 Happy Vietnamese Women\'s Day 20/10 🌷',
+  envelopeTitle: 'Gửi Em Bé Xinh Đẹp Nhất Của Anh 💕',
+  envelopeSubtitle: 'Chạm nhẹ vào phong bì vẽ tay để mở cuốn sổ kỷ niệm ngọt ngào ngày 20/10 nhé!',
+  stickerLeft: '👑 Công chúa của anh',
+  stickerRight: '🎀 20/10 ngọt ngào',
+  envelopeMiniTag: '20 • 10',
+  tapHint: '✨ Chạm vào con dấu hoa để mở quà 20/10 nhé! ✨',
+  continueTapHint: '💌 Lá thư đã mở! Chạm bất kỳ đâu vào màn hình để bước vào sổ tay 20/10 nhé ✨',
+
+  // Phân cảnh 2: Tiêu đề, Góc Gương Thần & Chậu Hoa Hồng
+  crownBadge: '👑 Sổ Tay Ngọt Ngào 20/10 🎀',
+  heroTitle: 'Chúc Mừng Ngày Phụ Nữ Việt Nam 20/10 🌷',
+  heroSubtitle: 'Cảm ơn em vì đã xuất hiện như một ánh nắng ngọt ngào, làm thế giới của anh lúc nào cũng rực rỡ sắc màu pastel.',
+  chalkboardTitle: '🎀 Góc Gương Thần & Quầy Trà Sữa Cưng Chiều Em Bé',
+  chalkLine1: 'Ngày Phụ Nữ Việt Nam 20 tháng 10 ♥',
+  chalkLine2: 'Chứng nhận: Em bé của anh xinh đẹp & đáng yêu số 1 vũ trụ!',
+  chalkBtnText: '🧋 Thả thêm Trà Sữa & Sticker Khen Em Bé',
+  chalkStickers: [
+    '👑 Xinh Đẹp Tuyệt Trần',
+    '🧋 Trà Sữa Full Topping',
+    '🎀 Ngoan Xinh Yêu Của Anh',
+    '💖 Cưng Chiều Số 1 Vũ Trụ',
+    '🍓 Ngọt Ngào Hơn Kẹo Bông',
+    '💄 Rạng Rỡ Ngày 20/10',
+    '🌷 1000 Điểm Đáng Yêu'
+  ],
+  potTitle: '🌷 Chậu Hoa Hồng 20/10 Của Em',
+  potStatus0: 'Chạm để tưới trà sữa & vitamin yêu thương cho hoa nở rộ nhé! (0/3)',
+  potStatus1: 'Mầm hoa hồng đã nhú lá non rồi kìa! Tưới thêm trà sữa nhé (1/3) 🌱',
+  potStatus2: 'Cây lớn nhanh quá! Tưới thêm 1 lần nữa để hoa hồng 20/10 nở bung nha (2/3) 🌷',
+  potStatus3: '🎉 Hoa Hồng Tình Yêu 20/10 đã nở rộ tặng Công Chúa Nhỏ Của Anh! 🌷🎀',
+  potBtnText: '🍓 Tưới Vitamin Ngọt Ngào',
+  potBtnBloomedText: '🌷 Hoa Đã Nở Rộ (Bấm Thả Thêm Tim)',
+
+  // 3 Thẻ Câu Chuyện
+  storyCards: [
+    {
+      stamp: 'Xinh #1',
+      icon: '👑',
+      title: 'Công Chúa Của Riêng Anh',
+      text: 'Dù ngoài kia em phải trưởng thành thế nào, ở bên cạnh anh, em cứ thoải mái làm em bé nhõng nhẽo được anh cưng chiều nhất nhé.'
+    },
+    {
+      stamp: 'Ngọt 100%',
+      icon: '🧋',
+      title: 'Ngọt Ngào Hơn Trà Sữa',
+      text: 'Mỗi nụ cười, mỗi cái ôm của em đều là liều vitamin hạnh phúc làm tan biến mọi mệt mỏi trong ngày của anh.'
+    },
+    {
+      stamp: 'Cưng Nhất',
+      icon: '💖',
+      title: 'Luôn Bên Cạnh Bảo Vệ Em',
+      text: 'Chúc cô gái của anh ngày 20/10 và cả 365 ngày trong năm luôn xinh đẹp, tự tin, rạng rỡ và được yêu thương trọn vẹn.'
+    }
+  ],
+
+  // Bức Tâm Thư & Con Dấu Mộc Đỏ
+  letterDecorTop: '🎀 ─── 💌 Trang Sổ Tay 20/10 Viết Riêng Tặng Em 💌 ─── 🎀',
+  letterGreeting: 'Thương gửi em bé xinh yêu của anh,',
+  letterContent: `Nhân ngày Phụ nữ Việt Nam 20/10, anh làm cuốn sổ tay nhỏ vẽ tay này để gửi đến công chúa của anh ngàn lời thương yêu ngọt ngào nhất.\n\nCảm ơn em vì những buổi hẹn hò đầy ắp tiếng cười, những tin nhắn quan tâm ấm áp và cả những lúc giận hờn đáng yêu làm anh thương nhớ không thôi. Có em đồng hành, ngày bình thường nào của anh cũng biến thành ngày lễ đặc biệt.\n\nChúc em yêu ngày 20/10 luôn xinh tươi như hoa tulip mùa xuân, ăn thật nhiều món ngon, uống trà sữa không lo tăng cân và mãi là em bé hạnh phúc nhất trong vòng tay anh nhé!`,
+  stampLine1: '★ CHỨNG NHẬN 20/10 ★',
+  stampLine2: 'CÔNG CHÚA NHỎ',
+  stampLine3: 'XINH YÊU NHẤT',
+  letterClosing: 'Thương và cưng chiều em nhất trên đời,',
+
+  // Khu vực Hộp Quà
+  giftSectionTitle: 'Một Hộp Quà Bí Mật 20/10 Đang Chờ Em 🎁',
+  giftSectionSubtitle: 'Đọc xong thư rồi thì bấm vào hộp quà nơ hồng bên dưới để nhận lì xì 20/10 đi shopping, uống trà sữa từ anh nha!',
+  giftComicBurst: '✨ BẤM MỞ QUÀ! ✨',
+  giftButtonText: '🎀 Bấm Vào Đây Để Mở Quà 20/10',
+
+  // Phân cảnh 3: Màn hình chờ
+  waitingTitle: 'Tín Hiệu Đã Bay Tới Anh Người Yêu! 💌',
+  waitingMessages: [
+    'Ting ting! Anh ấy vừa nhận được tín hiệu đòi quà 20/10 của em rồi nha... 🎀',
+    'Anh đang mở app ngân hàng với tốc độ ánh sáng để bắn lì xì cho công chúa 💸...',
+    'Đang gói ghém thật nhiều trà sữa, dâu tây kèm "vitamin ting ting"... 🍓🧋',
+    'Đợi anh một xíu xiu thôi nha, giữ nguyên màn hình để đón mưa pháo hoa nhé! ✨'
+  ],
+  waitingNote: '✨ Đợi một xíu xiu nha, máy bay giấy đang chở trà sữa & quà 20/10 của anh tới liền! ✨',
+
+  // Phân cảnh 4: Màn hình Nổ Quà & Tấm Séc Ngân Hàng Tình Yêu
+  rewardBadge: '🎉 TING TING! SHIPPER TÌNH YÊU ĐÃ GIAO QUÀ 20/10 🎉',
+  rewardTitle: 'Chúc Mừng Em Yêu Nhận Quà 20/10! 🎉',
+  rewardSubtitle: 'Ting ting! Quỹ cưng chiều công chúa 20/10 đã chuyển thẳng tới em:',
+  chequeBankName: '🏦 NGÂN HÀNG CHIỀU CHUỘNG BẠN GÁI 20/10',
+  chequeCode: 'MÃ SỐ: #LOVE-2010',
+  chequeCurrency: 'VNĐ',
+  chequeRecipientLabel: 'Người nhận:',
+  chequePaidStamp: '✓ ĐÃ CHUYỂN KHOẢN',
+  defaultGiftMessage: 'Chúc công chúa nhỏ của anh 20/10 thật rạng rỡ, đi mua sắm món đồ em thích và đi ăn ngon cùng anh nhé! Yêu em nhiều lắm ❤️',
+  billHeader: '📸 Ảnh chụp Bill chuyển khoản kẹp vào sổ lưu niệm 20/10:',
+  polaroidCaption: 'Kỷ niệm 20/10 ngọt ngào của tụi mình 🌷🎀',
+  replayBtnText: '🎊 Tung Hoa & Bắn Pháo Giấy Tiếp!'
+};

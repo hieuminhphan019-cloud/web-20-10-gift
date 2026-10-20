@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trang Quản Trị 20/10 - Điều Khiển Quà & Nội Dung</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="/socket.io/socket.io.js"></script>
+  <link rel="stylesheet" href="/css/admin.css" />
+</head>
+<body>
+  <div class="admin-wrap">
+    <header class="admin-header">
+      <div>
+        <h1>🎛️ Quản Trị Món Quà 20/10</h1>
+        <p>Theo dõi trực tiếp, bắn quà chuyển khoản & chỉnh sửa toàn bộ lời chúc/tâm thư 20/10 tặng bạn gái</p>
+      </div>
+      <div class="header-actions">
+        <a href="/" target="_blank" class="btn-outline">🎀 Mở Trang Bạn Gái</a>
+        <button id="resetSessionBtn" class="btn-warn">🔄 Reset Phiên Nhận Quà</button>
+      </div>
+    </header>
+
+    <div id="claimAlertBanner" class="alert-banner hidden">
+      <div class="alert-icon">🚨</div>
+      <div class="alert-info">
+        <h2>BẠN GÁI VỪA BẤM NÚT NHẬN QUÀ 20/10!</h2>
+        <p>Cô ấy đang ở màn hình chờ! Hãy chuyển khoản, tải ảnh bill lên bên dưới và bấm <strong>Kích Hoạt Nổ Quà</strong> ngay nhé!</p>
+      </div>
+      <button id="muteAlarmBtn" class="btn-mute">🔕 Tắt chuông</button>
+    </div>
+
+    <div class="tabs-bar">
+      <button class="tab-btn active" data-tab="tabGift">💸 1. Điều Khiển Gửi Quà & Upload Bill</button>
+      <button class="tab-btn" data-tab="tabContent">✏️ 2. Chỉnh Sửa Nội Dung Chữ & Thư 20/10</button>
+    </div>
+
+    <!-- TAB 1: TRẠNG THÁI & GỬI QUÀ -->
+    <div id="tabGift" class="tab-pane active">
+      <div class="grid-2col">
+        <div class="card">
+          <h3>📡 Trạng Thái Trực Tiếp Của Bạn Gái</h3>
+          <div class="status-list">
+            <div class="status-item">
+              <span>Kết nối trang bạn gái:</span>
+              <strong id="stOnline" class="badge-off">Chưa mở trang</strong>
+            </div>
+            <div class="status-item">
+              <span>Phân cảnh hiện tại:</span>
+              <strong id="stStep">Chưa bắt đầu</strong>
+            </div>
+            <div class="status-item">
+              <span>Trạng thái bấm Nhận Quà:</span>
+              <strong id="stClaimed">Chưa bấm</strong>
+            </div>
+            <div class="status-item">
+              <span>Trạng thái Bắn Quà:</span>
+              <strong id="stSent">Chưa gửi</strong>
+            </div>
+          </div>
+          <h4 class="log-heading">📜 Nhật ký hoạt động thời gian thực</h4>
+          <ul id="historyLogList" class="log-list"></ul>
+        </div>
+
+        <div class="card highlight-card">
+          <h3>🎁 Bắn Quà & Ảnh Bill Sang Màn Hình Bạn Gái</h3>
+          <form id="sendGiftForm">
+            <div class="form-group">
+              <label>💰 Số tiền bạn chuyển khoản (VNĐ):</label>
+              <input type="text" id="giftAmountInput" value="2.010.000" placeholder="VD: 2.010.000" required />
+              <div class="quick-amounts">
+                <button type="button" class="chip" data-val="201000">201.000đ</button>
+                <button type="button" class="chip" data-val="520000">520.000đ</button>
+                <button type="button" class="chip" data-val="1000000">1.000.000đ</button>
+                <button type="button" class="chip" data-val="2010000">2.010.000đ</button>
+                <button type="button" class="chip" data-val="5200000">5.200.000đ</button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>📸 Upload ảnh Bill (Hoặc bấm Ctrl+V để dán ảnh chụp màn hình):</label>
+              <div class="upload-zone" id="uploadZone">
+                <input type="file" id="billFileInput" accept="image/*" />
+                <p>📂 Chọn ảnh Bill từ máy/điện thoại hoặc <strong>Ctrl + V</strong> dán ảnh trực tiếp</p>
+              </div>
+              <div id="billPreviewBox" class="preview-box hidden">
+                <img id="billPreviewImg" src="" alt="Preview Bill" />
+                <button type="button" id="removeBillBtn" class="btn-remove-img">✖ Xóa ảnh</button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>💌 Lời nhắn hiện kèm khi nổ số tiền & bill:</label>
+              <textarea id="giftMessageInput" rows="3" placeholder="Nhập lời chúc ngọt ngào khi nổ quà..."></textarea>
+            </div>
+
+            <button type="submit" id="submitGiftBtn" class="btn-primary-large">
+              🚀 XÁC NHẬN ĐÃ CHUYỂN KHOẢN & NỔ ANIMATION QUÀ NGAY!
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- TAB 2: CHỈNH SỬA TOÀN BỘ NỘI DUNG CHỮ & THƯ -->
+    <div id="tabContent" class="tab-pane">
+      <div class="card">
+        <div class="cms-header">
+          <div>
+            <h3>✏️ Chỉnh Sửa Toàn Bộ Chữ, Tiêu Đề & Tâm Thư 20/10</h3>
+            <p>Mọi thay đổi sau khi bấm Lưu sẽ cập nhật ngay lập tức sang trang của bạn gái mà không cần sửa code.</p>
+          </div>
+          <button type="button" id="resetDefaultTextBtn" class="btn-outline">↺ Khôi phục văn bản gốc 20/10</button>
+        </div>
+
+        <!-- KHU VỰC UPLOAD NHẠC NỀN LẶP LẠI VÔ TẬN -->
+        <div class="cms-section full-width" style="margin-bottom: 20px; background: #fff8fa; border: 2px dashed #ff8fab;">
+          <h4>🎵 Cài Đặt Nhạc Nền (Upload nhạc từ máy - Hết bài tự động phát lại từ đầu)</h4>
+          <div class="grid-2col-inner" style="align-items: center;">
+            <div>
+              <label>Chọn file nhạc (.mp3, .m4a, .wav, .ogg...):</label>
+              <input type="file" id="musicFileInput" accept="audio/*" />
+              <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
+                <button type="button" id="uploadMusicBtn" class="btn-outline" style="background:#ff6b8b;color:#fff;border:none;">⬆️ Tải Nhạc Lên & Áp Dụng Ngay</button>
+                <button type="button" id="deleteMusicBtn" class="btn-warn">🔇 Xóa / Tắt Nhạc Nền</button>
+              </div>
+              <p id="musicUploadStatus" style="margin-top: 8px; font-weight: 600; color: #d6336c;">Chưa có bài nhạc nào được tải lên (Đã tắt nhạc mặc định).</p>
+            </div>
+            <div>
+              <label>Nghe thử nhạc đang cài trên hệ thống:</label>
+              <audio id="adminMusicPreview" controls loop style="width: 100%; margin-top: 6px;"></audio>
+            </div>
+          </div>
+        </div>
+
+        <form id="cmsForm" class="cms-grid">
+          <div class="cms-section">
+            <h4>🌸 1. Màn Hình Đầu Tiên (Phong Bì & Cài Đặt Chung)</h4>
+            <label>Tiêu đề Tab trình duyệt (Page Title):</label>
+            <input type="text" id="cfg_pageTitle" />
+            <label>Chữ trên nút Bật/Tắt nhạc góc trên:</label>
+            <input type="text" id="cfg_musicBtnLabel" />
+            <label>Các icon/chữ bay ra khi di chuột & chạm màn hình (cách nhau dấu phẩy):</label>
+            <input type="text" id="cfg_cursorParticles" />
+            <label>Nhãn ngày lễ (Badge trên cùng):</label>
+            <input type="text" id="cfg_dateBadge" />
+            <label>Tiêu đề lớn màn hình phong bì:</label>
+            <input type="text" id="cfg_envelopeTitle" />
+            <label>Dòng hướng dẫn dưới tiêu đề phong bì:</label>
+            <input type="text" id="cfg_envelopeSubtitle" />
+            <div class="grid-2col-inner">
+              <div>
+                <label>Sticker dán góc trái phong bì:</label>
+                <input type="text" id="cfg_stickerLeft" />
+              </div>
+              <div>
+                <label>Sticker dán góc phải phong bì:</label>
+                <input type="text" id="cfg_stickerRight" />
+              </div>
+            </div>
+            <div class="grid-2col-inner">
+              <div>
+                <label>Tên người nhận (trên lá thư & séc):</label>
+                <input type="text" id="cfg_recipientName" />
+              </div>
+              <div>
+                <label>Nhãn ngày nhỏ trong lá thư (VD: 20 • 10):</label>
+                <input type="text" id="cfg_envelopeMiniTag" />
+              </div>
+            </div>
+            <label>Dòng nhắc chạm mở phong bì (Lúc chưa mở):</label>
+            <input type="text" id="cfg_tapHint" />
+            <label>Dòng nhắc sau khi thư mở lên (Bấm vào màn hình để qua trang mới):</label>
+            <input type="text" id="cfg_continueTapHint" />
+          </div>
+
+          <div class="cms-section">
+            <h4>✨ 2. Tiêu Đề Chính & 3 Thẻ Câu Chuyện</h4>
+            <label>Nhãn vương miện nhỏ trên tiêu đề chính:</label>
+            <input type="text" id="cfg_crownBadge" />
+            <label>Tiêu đề lớn sau khi mở thư:</label>
+            <input type="text" id="cfg_heroTitle" />
+            <label>Mô tả ngắn dưới tiêu đề:</label>
+            <textarea id="cfg_heroSubtitle" rows="2"></textarea>
+
+            <div class="mini-card-edit">
+              <strong>Thẻ 1 (Nhãn góc + Icon + Tiêu đề + Nội dung):</strong>
+              <div class="row-icon">
+                <input type="text" id="cfg_cardIcon0" placeholder="Icon" />
+                <input type="text" id="cfg_cardStamp0" placeholder="Nhãn góc (VD: Xinh #1)" />
+              </div>
+              <input type="text" id="cfg_cardTitle0" placeholder="Tiêu đề thẻ 1" style="margin-top:6px;" />
+              <textarea id="cfg_cardText0" rows="2"></textarea>
+            </div>
+            <div class="mini-card-edit">
+              <strong>Thẻ 2 (Nhãn góc + Icon + Tiêu đề + Nội dung):</strong>
+              <div class="row-icon">
+                <input type="text" id="cfg_cardIcon1" placeholder="Icon" />
+                <input type="text" id="cfg_cardStamp1" placeholder="Nhãn góc (VD: Ngọt 100%)" />
+              </div>
+              <input type="text" id="cfg_cardTitle1" placeholder="Tiêu đề thẻ 2" style="margin-top:6px;" />
+              <textarea id="cfg_cardText1" rows="2"></textarea>
+            </div>
+            <div class="mini-card-edit">
+              <strong>Thẻ 3 (Nhãn góc + Icon + Tiêu đề + Nội dung):</strong>
+              <div class="row-icon">
+                <input type="text" id="cfg_cardIcon2" placeholder="Icon" />
+                <input type="text" id="cfg_cardStamp2" placeholder="Nhãn góc (VD: Cưng Nhất)" />
+              </div>
+              <input type="text" id="cfg_cardTitle2" placeholder="Tiêu đề thẻ 3" style="margin-top:6px;" />
+              <textarea id="cfg_cardText2" rows="2"></textarea>
+            </div>
+          </div>
+
+          <div class="cms-section full-width">
+            <h4>🪞 3. Góc Gương Thần & Chậu Hoa Hồng 20/10 (Tương Tác)</h4>
+            <div class="grid-2col-inner">
+              <div>
+                <label>Tiêu đề thanh gỗ Bảng Gương Thần:</label>
+                <input type="text" id="cfg_chalkboardTitle" />
+                <label>Dòng chữ phấn 1 trên bảng:</label>
+                <input type="text" id="cfg_chalkLine1" />
+                <label>Dòng chữ phấn 2 (Chứng nhận chính trên bảng):</label>
+                <input type="text" id="cfg_chalkLine2" />
+                <label>Chữ trên nút bấm thả Sticker khen bạn gái:</label>
+                <input type="text" id="cfg_chalkBtnText" />
+                <label>Danh sách các Sticker khen bạn gái khi bấm (Mỗi dòng 1 câu):</label>
+                <textarea id="cfg_chalkStickers" rows="5"></textarea>
+              </div>
+              <div>
+                <label>Tiêu đề Chậu Hoa Hồng 20/10:</label>
+                <input type="text" id="cfg_potTitle" />
+                <label>Trạng thái chậu hoa lúc chưa tưới (0/3):</label>
+                <input type="text" id="cfg_potStatus0" />
+                <label>Trạng thái chậu hoa khi tưới lần 1 (1/3):</label>
+                <input type="text" id="cfg_potStatus1" />
+                <label>Trạng thái chậu hoa khi tưới lần 2 (2/3):</label>
+                <input type="text" id="cfg_potStatus2" />
+                <label>Trạng thái chậu hoa khi nở rộ (3/3):</label>
+                <input type="text" id="cfg_potStatus3" />
+                <div class="grid-2col-inner">
+                  <div>
+                    <label>Chữ trên nút Tưới Hoa (Lúc chưa nở):</label>
+                    <input type="text" id="cfg_potBtnText" />
+                  </div>
+                  <div>
+                    <label>Chữ trên nút Tưới Hoa (Sau khi hoa nở):</label>
+                    <input type="text" id="cfg_potBtnBloomedText" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cms-section full-width">
+            <h4>💌 4. Nội Dung Bức Tâm Thư 20/10 & Con Dấu Mộc Đỏ</h4>
+            <label>Dòng trang trí trên đầu trang giấy viết thư:</label>
+            <input type="text" id="cfg_letterDecorTop" />
+            <label>Lời chào đầu thư:</label>
+            <input type="text" id="cfg_letterGreeting" />
+            <label>Nội dung chính của bức thư (Cách nhau 1 dòng trống để tách đoạn, đoạn cuối tự động tô bút dạ quang):</label>
+            <textarea id="cfg_letterContent" rows="7"></textarea>
+            <div class="grid-2col-inner">
+              <div>
+                <label>Con dấu mộc đỏ - Dòng 1 (Trên):</label>
+                <input type="text" id="cfg_stampLine1" />
+                <label>Con dấu mộc đỏ - Dòng 2 (Chữ đậm ở giữa):</label>
+                <input type="text" id="cfg_stampLine2" />
+                <label>Con dấu mộc đỏ - Dòng 3 (Dưới):</label>
+                <input type="text" id="cfg_stampLine3" />
+              </div>
+              <div>
+                <label>Lời kết cuối thư:</label>
+                <input type="text" id="cfg_letterClosing" />
+                <label>Chữ ký tên bạn:</label>
+                <input type="text" id="cfg_senderName" />
+              </div>
+            </div>
+          </div>
+
+          <div class="cms-section full-width">
+            <h4>🎁 5. Khu Vực Hộp Quà, Màn Hình Chờ & Màn Hình Nổ Quà (Tấm Séc + Polaroid)</h4>
+            <div class="grid-2col-inner">
+              <div>
+                <label>Tiêu đề khu vực Hộp Quà:</label>
+                <input type="text" id="cfg_giftSectionTitle" />
+                <label>Mô tả khu vực Hộp Quà:</label>
+                <input type="text" id="cfg_giftSectionSubtitle" />
+                <label>Nhãn nổi trên Hộp Quà (Comic Burst):</label>
+                <input type="text" id="cfg_giftComicBurst" />
+                <label>Chữ trên nút bấm Nhận Quà:</label>
+                <input type="text" id="cfg_giftButtonText" />
+                <label>Tiêu đề màn hình chờ bạn chuyển khoản:</label>
+                <input type="text" id="cfg_waitingTitle" />
+                <label>Các câu chạy liên tục lúc bạn gái chờ (Mỗi dòng 1 câu):</label>
+                <textarea id="cfg_waitingMessages" rows="4"></textarea>
+                <label>Dòng ghi chú nhỏ dưới thanh bút chì màu màn hình chờ:</label>
+                <input type="text" id="cfg_waitingNote" />
+              </div>
+              <div>
+                <label>Nhãn thông báo trên cùng khi Nổ Quà (Reward Badge):</label>
+                <input type="text" id="cfg_rewardBadge" />
+                <label>Tiêu đề lớn khi nổ quà thành công:</label>
+                <input type="text" id="cfg_rewardTitle" />
+                <label>Dòng phụ dưới tiêu đề nổ quà:</label>
+                <input type="text" id="cfg_rewardSubtitle" />
+                <div class="grid-2col-inner">
+                  <div>
+                    <label>Tên ngân hàng trên Tấm Séc:</label>
+                    <input type="text" id="cfg_chequeBankName" />
+                  </div>
+                  <div>
+                    <label>Mã số trên Tấm Séc:</label>
+                    <input type="text" id="cfg_chequeCode" />
+                  </div>
+                </div>
+                <div class="grid-2col-inner">
+                  <div>
+                    <label>Đơn vị tiền tệ (VD: VNĐ):</label>
+                    <input type="text" id="cfg_chequeCurrency" />
+                  </div>
+                  <div>
+                    <label>Nhãn người nhận (VD: Người nhận:):</label>
+                    <input type="text" id="cfg_chequeRecipientLabel" />
+                  </div>
+                </div>
+                <label>Con dấu xác nhận trên Tấm Séc (VD: ✓ ĐÃ CHUYỂN KHOẢN):</label>
+                <input type="text" id="cfg_chequePaidStamp" />
+                <label>Lời nhắn mặc định kèm theo quà:</label>
+                <input type="text" id="cfg_defaultGiftMessage" />
+                <label>Dòng tiêu đề phía trên khung ảnh Bill:</label>
+                <input type="text" id="cfg_billHeader" />
+                <label>Chú thích dưới đáy khung ảnh Polaroid:</label>
+                <input type="text" id="cfg_polaroidCaption" />
+                <label>Chữ trên nút bấm Bắn Pháo Giấy Tiếp:</label>
+                <input type="text" id="cfg_replayBtnText" />
+              </div>
+            </div>
+          </div>
+
+          <div class="cms-footer full-width">
+            <button type="submit" class="btn-save-cms">💾 LƯU TOÀN BỘ NỘI DUNG & CẬP NHẬT TRỰC TIẾP</button>
+            <span id="cmsSaveStatus" class="save-status"></span>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script src="/js/admin.js"></script>
+</body>
+</html>
