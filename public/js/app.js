@@ -1,4 +1,7 @@
-const socket = io({ query: { role: 'girlfriend' } });
+const isServerlessHost = window.location.hostname.includes('vercel.app');
+const socket = (!isServerlessHost && typeof io === 'function')
+  ? io({ query: { role: 'girlfriend' } })
+  : { on() {}, emit() {} };
 
 let currentScene = 'intro';
 let musicPlaying = false;

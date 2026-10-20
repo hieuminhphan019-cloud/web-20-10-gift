@@ -98,6 +98,9 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use('/uploads', express.static(uploadsDir));
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.get('/socket.io/socket.io.js', (req, res) => {
+  res.type('application/javascript').send('window.io = window.io || undefined;');
+});
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 app.get('/api/state', (req, res) => {
   appConfig = loadConfig();

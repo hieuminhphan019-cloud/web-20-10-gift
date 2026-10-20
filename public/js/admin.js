@@ -1,4 +1,7 @@
-const socket = io({ query: { role: 'admin' } });
+const isServerlessHost = window.location.hostname.includes('vercel.app');
+const socket = (!isServerlessHost && typeof io === 'function')
+  ? io({ query: { role: 'admin' } })
+  : { on() {}, emit() {} };
 
 let pastedImageBase64 = '';
 let alarmInterval = null;
